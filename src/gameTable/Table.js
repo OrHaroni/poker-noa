@@ -1,5 +1,5 @@
-
 import React from 'react';
+import { useState, useEffect } from 'react';
 import Player from './Player';
 import OurPlayer from './OurPlayer.js';
 import './table.css'; // Import the table CSS file
@@ -7,43 +7,35 @@ import tableImg from '../assets/emptyTable.png'; // Import the image
 import { root } from '../index.js';
 import Lobby from '../lobby/lobby.js';
 import { leaveTable } from '../serverCalls/Table.js';
+import { getPlayersOnTable} from '../serverCalls/Table.js';
 
+// this io is the io from the index.html file on the public folder
+<script src="http://127.0.0.1:8080/socket.io/socket.io.js"></script>
 
 function Table(props) {
-    const ClickBack =  async () => {
-      // use leaveTable to leave the table, check the status and then go back to the lobby
-      let status= await leaveTable(props.table.name, props.user.nickname);
-      if(status===200){
-        root.render(<Lobby user={props.user} />);
-      }
-      else{
-        // maybe change the error message to a swal later.
-        console.log("error leaving table");
-      }
-      };
-      // represents the players on the table
-    let playerOnTable=props.table.playersOnTable;
-    // represents the players on the table except the user that is logged in
-    let otherPlayers = [];
-    let numOfPlayers = playerOnTable.length;
-    
-    
+  const [otherPlayers, setOtherPlayers] = useState(props.table.playersOnTable);
+    // fecthData func to get the players on the table from the server (after a user joined the table or left the table ).
+    const fetchData = async () => {
+      const updatedPlayers = await getPlayersOnTable(props.table.name);
+      const updatedOtherPlayers = updatedPlayers.filter(player => player.nickname !== props.user.nickname);
+      setOtherPlayers(updatedOtherPlayers);
+    };
+    // every time we get a render event, we will call the fetchData func and update the state.
+    props.socket.off('render').on('render', fetchData);
 
-
-
-    // Loop through the players and create a Player component for each one
-    for (let i = 0; i < numOfPlayers; i++) {
-        if(playerOnTable[i].username!==props.user.username){
-          otherPlayers.push(
-                <Player name={playerOnTable[i].nickname} className={`player player${i + 1}`} />
-            );
-        }
-        
+  const ClickBack = async () => {
+    const status = await leaveTable(props.table.name, props.user.nickname);
+    if (status === 200) {
+      props.socket.emit('leaveTable', props.table.name, props.user.username);
+      root.render(<Lobby user={props.user} socket={props.socket} />);
+    } else {
+      console.log("Error leaving table");
     }
+  };
 
-    return (
-        <>
-        <div className="upper-bg">
+  return (
+    <>
+      <div className="upper-bg">
         <button className="exit-button" onClick={ClickBack} id="buttonBack">
           Back
         </button>
@@ -51,19 +43,21 @@ function Table(props) {
           money: {props.user.moneyAmount}
         </button>
       </div>
-        <div className="table">
-            <div>
-                {/* Background image */}
-                <img src={tableImg} alt="Poker Table" className="table-image" />
-                {/* Players container */}
-                <div className="players">
-                    {otherPlayers}
-                </div>
-            </div>
+      <div className="table">
+        <div>
+          {/* Background image */}
+          <img src={tableImg} alt="Poker Table" className="table-image" />
+          {/* Players container */}
+          <div className="players">
+            {otherPlayers.map((player, index) => (
+              <Player key={index} name={player.nickname} className={`player player${index + 1}`} />
+            ))}
+          </div>
         </div>
-        <OurPlayer  name={props.user.nickname} className={"our-player"}/>
-        </>
-    );
+      </div>
+      <OurPlayer  name={props.user.nickname} className={"our-player"}/>
+    </>
+  );
 }
 
 export default Table;

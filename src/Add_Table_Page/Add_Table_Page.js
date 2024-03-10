@@ -7,7 +7,7 @@ import { addTable } from '../serverCalls/Add_Table_Page.js';
 
 function Add_Money_Page(props) {
   const ClickBack = () => {
-    root.render(<Lobby user={props.user} />);
+    root.render(<Lobby user={props.user} socket={props.socket}  />);
   };
 
   const clickAddTable = async () => {
@@ -28,7 +28,7 @@ function Add_Money_Page(props) {
       }
       else if (status === 200) {
         sendSwal("added new table succesfully", "success");
-        root.render(<Lobby user={props.user} />);
+        root.render(<Lobby user={props.user} socket={props.socket} />);
       } else {
         sendSwal("Unkown return status", "error");
       }

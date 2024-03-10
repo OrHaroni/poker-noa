@@ -7,7 +7,7 @@ import { addMoney } from '../serverCalls/Add_Money_page.js';
 function Add_Money_Page(props) {
 
   const ClickBack = () => {
-    root.render(<Lobby user={props.user}/>);
+    root.render(<Lobby user={props.user} socket={props.socket} />);
   };
 
   const moneyAmountRef = useRef(null);
@@ -20,11 +20,11 @@ function Add_Money_Page(props) {
 
     if(status === 200) {
       sendSwal(`Money added successfully! Amount: ${selectedAmount}`, 'success');
-      root.render(<Lobby user={updatedUser}/>);
+      root.render(<Lobby user={updatedUser} socket={props.socket} />);
     }
     else {
       sendSwal('Couldnt add money', 'error');
-      root.render(<Lobby user={props.user}/>);
+      root.render(<Lobby user={props.user} socket={props.socket} />);
     }
   } else {
     sendSwal('Please select an amount.', 'error');

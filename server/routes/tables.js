@@ -16,6 +16,9 @@ router.route('/addTable').post(tableControllers.addTable);
 
 // route for leave table
 router.route('/leaveTable').post(tableControllers.leaveTable);
+// route for get players on table
+router.route('/getPlayersOnTable/:tableName').get(tableControllers.getPlayersOnTable);
+
 
 
 module.exports = router;

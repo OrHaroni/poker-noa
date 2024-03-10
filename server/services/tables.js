@@ -11,6 +11,17 @@ async function getAllTables() {
       throw error;
     }
   }
+  // get players on table based on the table name
+  async function getPlayersOnTable(tableName) {
+    try {
+      const table = await tableSchema.findOne({ "name": tableName });
+      return table.playersOnTable;
+    } catch (error) {
+      console.error('Error retrieving players on table:', error);
+      throw error;
+    }
+  }
+
 
 const isTableNameTaken = async (name) => {
     try {
@@ -117,5 +128,5 @@ const leaveTable = async (tableName, nickname) => {
 
 
 module.exports = {
-    getAllTables, validateTable, addTable, leaveTable, joinUserIntoTable
+    getAllTables, validateTable, addTable, leaveTable, joinUserIntoTable ,getPlayersOnTable
   }

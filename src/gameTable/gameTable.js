@@ -7,6 +7,14 @@ import { root } from '../index.js';
 import Lobby from '../lobby/lobby.js';
 import { joinUserIntoTable } from '../serverCalls/lobby.js';
 import { sendSwal } from '../lobby/lobby.js';
+import { io } from 'socket.io-client';
+
+// this io is the io from the index.html file on the public folder
+<script src="http://127.0.0.1:8080/socket.io/socket.io.js"></script>
+
+
+
+
 
 function GameTable(props) {
     const [showModal, setShowModal] = useState(false);
@@ -25,12 +33,15 @@ function GameTable(props) {
       };
 
     const ClickEnterGame = async () => {
+
         const moneyToEnterWith = moneyRef.current.value;
         const tableName = props.table.name;
         const username = props.user.username;
 
         const retStatus= await joinUserIntoTable(tableName, username, moneyToEnterWith);
         if(retStatus === 200) {
+            // if the status is good, we want to use socket io to send the server joinTable event, to make all other players on that table to render the table.
+            props.socket.emit('joinTable', tableName, username);
             setShowModal(false);
         }
         else if (retStatus === 301) {
@@ -46,7 +57,7 @@ function GameTable(props) {
     };
 
     const ClickBack =  async () => {
-        root.render(<Lobby user={props.user} />);
+        root.render(<Lobby user={props.user} socket={props.socket}/>);
         }
 
     return (
@@ -76,7 +87,7 @@ function GameTable(props) {
                 <Row>
                     <Col>
                         {/* Render the Table component up to 4*/}
-                        <Table table={props.table} user={props.user} players_num={4} />
+                        <Table table={props.table} user={props.user} players_num={4} socket={props.socket}/>
                     </Col>
                 </Row>
             </Container>

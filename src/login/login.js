@@ -7,6 +7,11 @@ import Register from '../register/Register';
 import Lobby from '../lobby/lobby.js';
 import { sendSwal } from '../lobby/lobby.js';
 import { userExistsWithPassword, GetAllUser } from '../serverCalls/login.js'
+import { io } from 'socket.io-client';
+// Initialize the socket connection
+// this io is the io from the index.html file on the public folder
+<script src="http://127.0.0.1:8080/socket.io/socket.io.js"></script>
+const socket = io('http://127.0.0.1:8080', { transports: ['websocket'] });
 
 function Login() {
 
@@ -32,7 +37,10 @@ function Login() {
       if (status !== 200) {
         sendSwal("Username or Password are incorrect", "error");
       } else {
-        root.render(<Lobby user={user} />);
+        // if the status is good, we want to use socket io to send to the server that the user is connected. (mainly to know the socket id of the user)
+        socket.emit('userConnected', user.username);
+        // sending the socket as well so we can use it later on to listen to events.
+        root.render(<Lobby user={user} socket={socket}/>);
       }
     }
   };

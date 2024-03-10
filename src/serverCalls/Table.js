@@ -11,4 +11,15 @@ export async function leaveTable(tableName, nickname) {
     // the server return only the status
     return await res.status;
 }
+// export async func 'get' to get the array of players on the table
+export async function getPlayersOnTable(tableName) {
+    const res = await fetch('http://localhost:8080/tables/getPlayersOnTable/' +tableName, {
+      'method' : 'get',
+      "headers" : {
+        'Content-Type': 'application/json',
+      },
+    });
+    let players = await res.json();
+    return players;
+}
 

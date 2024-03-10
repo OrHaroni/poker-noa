@@ -9,6 +9,18 @@ const getAllTables = async (req, res) => {
         res.status(500).json({});
     }
 }
+// get players on table based on the table name
+const getPlayersOnTable = async (req, res) => {
+    const tableName = req.params.tableName;
+    const players = await tableService.getPlayersOnTable(tableName);
+    if(players) {
+        res.status(200).json(players);
+    }
+    else {
+        res.status(500).json({});
+    }
+}
+
 
 const validateTable = async (req, res) => {
     const tableName = req.body.tableName;
@@ -80,5 +92,5 @@ const leaveTable = async (req, res) => {
 }
 
 module.exports = {
-    getAllTables, validateTable, addTable, leaveTable, joinUserIntoTable
+    getAllTables, validateTable, addTable, leaveTable, joinUserIntoTable ,getPlayersOnTable
   }
